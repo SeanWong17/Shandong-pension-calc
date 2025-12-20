@@ -31,7 +31,7 @@
 本项目为单文件应用，无需复杂的构建流程。
 
 ### 方法 1：在线使用 (推荐)
-[点击这里查看在线演示](https://SeanWong17.github.io/shandong-pension-calculator/)
+[点击这里查看在线演示](https://seanwong17.github.io/Shandong-pension-calc/)
 
 ### 方法 2：本地运行
 1. 克隆或下载本项目代码。
