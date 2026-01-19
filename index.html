@@ -5,443 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>山东省城乡居民养老保险精细测算器</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root { 
-            --primary: #059669; 
-            --primary-hover: #047857; 
-            --bg: #f3f4f6; 
-            --card: #ffffff; 
-            --text: #1f2937; 
-        }
-        
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            padding: 12px; 
-            line-height: 1.5; 
-            margin: 0;
-            font-size: 14px;
-        }
-        
-        .container { 
-            max-width: 1000px; 
-            margin: 0 auto; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 16px; 
-        }
-        
-        h1 { 
-            grid-column: 1 / -1; 
-            text-align: center; 
-            color: var(--primary); 
-            margin: 0 0 12px 0; 
-            font-size: 1.4rem;
-            padding: 0 10px;
-        }
-        
-        /* 卡片样式 */
-        .card { 
-            background: var(--card); 
-            padding: 16px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
-        }
-        .full-width { grid-column: 1 / -1; }
-        
-        h2 { 
-            font-size: 1rem; 
-            margin: 0 0 12px 0; 
-            border-bottom: 2px solid #e5e7eb; 
-            padding-bottom: 8px; 
-            color: #374151; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        /* 表单样式 */
-        .form-group { margin-bottom: 14px; }
-        
-        label { 
-            display: block; 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-            margin-bottom: 6px; 
-            color: #4b5563; 
-        }
-        
-        input, select { 
-            width: 100%; 
-            padding: 12px 14px; 
-            border: 1px solid #d1d5db; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 16px; /* 防止iOS缩放 */
-            background-color: #fff; 
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 36px;
-        }
-        
-        input:focus, select:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
-        }
-        
-        .hint { 
-            font-size: 0.75rem; 
-            color: #6b7280; 
-            margin-top: 4px; 
-            line-height: 1.4;
-        }
-        
-        /* 补贴说明框 */
-        .subsidy-info { 
-            background: #f0fdf4; 
-            border: 1px dashed #059669; 
-            padding: 12px; 
-            border-radius: 8px; 
-            font-size: 0.8rem; 
-            color: #047857; 
-            line-height: 1.6; 
-        }
-        .subsidy-info strong { color: #065f46; }
-        .subsidy-info ul {
-            margin: 8px 0 0 0;
-            padding-left: 20px;
-        }
-        .subsidy-info li {
-            margin-bottom: 4px;
-        }
-
-        /* 开关切换 */
-        .toggle-container { 
-            background: #e5e7eb; 
-            padding: 3px; 
-            border-radius: 8px; 
-            display: inline-flex; 
-            flex-shrink: 0;
-        }
-        .toggle-btn { 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 0.8rem; 
-            border: none; 
-            background: transparent; 
-            color: #666; 
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .toggle-btn.active { 
-            background: #fff; 
-            color: var(--primary); 
-            font-weight: bold; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-        }
-
-        /* 动态年份列表 */
-        .year-row { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 8px; 
-            margin-bottom: 12px; 
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 8px;
-        }
-        .year-label { 
-            grid-column: 1 / -1;
-            font-weight: bold; 
-            color: var(--primary); 
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-        .year-label.last-year { color: #d97706; } 
-        
-        .col-header { 
-            display: none; /* 移动端隐藏表头，改用内联标签 */
-        }
-        
-        .year-row .input-wrapper {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .year-row .input-label {
-            font-size: 0.75rem;
-            color: #666;
-            margin-bottom: 4px;
-        }
-        
-        .year-row select {
-            padding: 10px 12px;
-            font-size: 15px;
-        }
-
-        /* 结果样式 */
-        .result-box { 
-            background: #ecfdf5; 
-            border: 1px solid #d1fae5; 
-            padding: 14px; 
-            border-radius: 10px; 
-        }
-        .result-title { 
-            font-weight: bold; 
-            color: var(--primary); 
-            font-size: 0.9rem; 
-            margin-bottom: 4px;
-        }
-        .result-val { 
-            font-size: 1.3rem; 
-            font-weight: bold; 
-            color: #065f46; 
-        }
-        .breakdown { 
-            font-size: 0.8rem; 
-            color: #555; 
-            margin-top: 4px;
-        }
-
-        button.action-btn { 
-            background-color: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 14px 24px; 
-            border-radius: 10px; 
-            font-size: 1.1rem; 
-            cursor: pointer; 
-            width: 100%; 
-            margin-top: 16px; 
-            transition: background 0.2s; 
-            font-weight: bold; 
-            box-shadow: 0 4px 6px rgba(5, 150, 105, 0.2);
-            -webkit-appearance: none;
-        }
-        button.action-btn:hover, button.action-btn:active { 
-            background-color: var(--primary-hover); 
-        }
-
-        /* 结果区域网格 */
-        .result-grid {
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 12px; 
-            margin-bottom: 20px;
-        }
-
-        /* 结果表格 - 移动端优化 */
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 0 -16px;
-            padding: 0 16px;
-        }
-        
-        .result-table {
-            width: 100%;
-            min-width: 480px;
-            border-collapse: collapse;
-            text-align: left;
-            border: 1px solid #e5e7eb;
-            font-size: 0.85rem;
-        }
-        
-        .result-table th {
-            padding: 10px 8px;
-            border-bottom: 2px solid #ddd;
-            background: #f9fafb;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-        
-        .result-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .result-table .sub-text {
-            font-size: 0.75rem;
-            color: #888;
-            display: block;
-            margin-top: 2px;
-        }
-
-        /* 图表容器 */
-        .charts-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .chart-box {
-            height: 280px;
-            position: relative;
-        }
-
-        /* 剩余缴费提示 */
-        #remainingInfo {
-            margin-bottom: 12px; 
-            color: #d97706; 
-            font-weight: bold; 
-            font-size: 0.85rem;
-            background: #fffbeb;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #fde68a;
-        }
-        
-        #remainingInfo span {
-            color: #b45309;
-        }
-
-        /* 滚动容器 */
-        #dynamicYearsContainer {
-            max-height: 50vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-right: 4px;
-        }
-
-        /* 分隔线 */
-        .divider {
-            border-top: 1px solid #eee; 
-            margin: 16px 0;
-        }
-
-        /* ========== 桌面端适配 ========== */
-        @media (min-width: 769px) { 
-            body {
-                padding: 20px;
-                font-size: 15px;
-            }
-            
-            h1 {
-                font-size: 1.6rem;
-                margin-bottom: 20px;
-            }
-            
-            .card {
-                padding: 20px;
-            }
-            
-            .year-row { 
-                grid-template-columns: 90px 1fr 1fr; 
-                gap: 10px;
-                padding: 0;
-                padding-bottom: 10px;
-                margin-bottom: 10px;
-                background: transparent;
-                border-bottom: 1px dashed #eee;
-                border-radius: 0;
-            }
-            
-            .year-label {
-                grid-column: auto;
-                margin-bottom: 0;
-                display: flex;
-                align-items: center;
-            }
-            
-            .col-header { 
-                display: grid; 
-                grid-template-columns: 90px 1fr 1fr; 
-                gap: 10px; 
-                font-size: 0.85rem; 
-                font-weight: bold; 
-                color: #666; 
-                margin-bottom: 8px; 
-            }
-            
-            .year-row .input-wrapper {
-                flex-direction: row;
-                align-items: center;
-            }
-            
-            .year-row .input-label {
-                display: none;
-            }
-            
-            .result-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
-            }
-            
-            .charts-container {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .chart-box {
-                height: 350px;
-            }
-            
-            #dynamicYearsContainer {
-                max-height: 400px;
-            }
-        }
-
-        /* ========== 小屏手机适配 ========== */
-        @media (max-width: 768px) { 
-            .container { 
-                grid-template-columns: 1fr; 
-            }
-        }
-        
-        @media (max-width: 380px) {
-            body {
-                padding: 8px;
-            }
-            
-            h1 {
-                font-size: 1.2rem;
-            }
-            
-            .card {
-                padding: 12px;
-            }
-            
-            h2 {
-                font-size: 0.95rem;
-            }
-            
-            .toggle-btn {
-                padding: 5px 8px;
-                font-size: 0.75rem;
-            }
-            
-            .result-val {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>📈 山东居民养老金精细测算</h1>
+    <div class="header">
+        <h1>📊 山东居民养老金精细测算</h1>
+        <div class="header-subtitle">城乡居民基本养老保险待遇智能计算工具</div>
+    </div>
 
     <div class="card">
-        <h2>1. 基础信息</h2>
+        <h2>
+            <span><span class="section-icon">1</span>基础信息</span>
+        </h2>
         <div class="form-group">
             <label>当前年份</label>
-            <input type="number" id="currentYear" readonly style="background-color: #f9fafb;">
+            <input type="number" id="currentYear" readonly>
         </div>
         <div class="form-group">
             <label>出生年份</label>
@@ -458,7 +38,9 @@
         
         <div class="divider"></div>
         
-        <h2>2. 政策参数配置</h2>
+        <h2>
+            <span><span class="section-icon">2</span>政策参数配置</span>
+        </h2>
         <div class="form-group">
             <label>基础养老金最低标准 (元/月)</label>
             <input type="number" id="basePension" value="208" inputmode="numeric">
@@ -473,13 +55,13 @@
             <input type="number" id="interestRate" value="3.63" step="0.1" inputmode="decimal">
         </div>
         <div class="form-group">
-            <label>政府缴费补贴规则 (自动计算)</label>
+            <label>政府缴费补贴规则</label>
             <div class="subsidy-info">
                 <div>根据每年缴费档位自动将补贴计入余额：</div>
                 <ul>
-                    <li><strong>350档：</strong> 补30元/年</li>
-                    <li><strong>500档：</strong> 补50元/年</li>
-                    <li><strong>800及以上：</strong> 补80元/年</li>
+                    <li><strong>350档位：</strong> 补贴 30 元/年</li>
+                    <li><strong>500档位：</strong> 补贴 50 元/年</li>
+                    <li><strong>800及以上：</strong> 补贴 80 元/年</li>
                 </ul>
             </div>
         </div>
@@ -487,7 +69,7 @@
 
     <div class="card">
         <h2>
-            <span>3. 未来缴费规划</span>
+            <span><span class="section-icon">3</span>未来缴费规划</span>
             <div class="toggle-container">
                 <button class="toggle-btn active" id="modeSimple" onclick="toggleMode('simple')">固定金额</button>
                 <button class="toggle-btn" id="modeDetailed" onclick="toggleMode('detailed')">逐年设定</button>
@@ -507,7 +89,7 @@
                     <option value="0">无资助 (¥0)</option>
                 </select>
             </div>
-            <div class="hint">该模式假设未来每年的缴费金额都一样 (含退休当年)。</div>
+            <div class="hint">该模式假设未来每年的缴费金额都一样 (含退休当年)</div>
         </div>
 
         <div id="detailedModePanel" style="display: none;">
@@ -517,28 +99,30 @@
                 <span>子女资助</span>
             </div>
             <div id="dynamicYearsContainer"></div>
-            <div class="hint">* 橙色年份为退休当年，如生日前可缴费请选择金额，否则选0。</div>
+            <div class="hint">橙色年份为退休当年，如生日前可缴费请选择金额，否则选0</div>
         </div>
 
-        <button class="action-btn" onclick="calculate()">开始测算</button>
+        <button class="action-btn" onclick="calculate()">🚀 开始测算</button>
     </div>
 
     <div class="card full-width" id="resultCard" style="display:none;">
-        <h2>4. 测算结果展示</h2>
+        <h2>
+            <span><span class="section-icon">4</span>测算结果</span>
+        </h2>
         
         <div class="result-grid">
             <div class="result-box">
-                <div class="result-title">退休时间（60岁）</div>
+                <div class="result-title">🎂 退休时间（60岁）</div>
                 <div class="result-val" id="resRetireYear">--</div>
                 <div class="breakdown">总缴费年限: <span id="resTotalYears">--</span></div>
             </div>
             <div class="result-box">
-                <div class="result-title">账户总积累</div>
+                <div class="result-title">💰 账户总积累</div>
                 <div class="result-val" id="resTotalBalance">¥0</div>
                 <div class="breakdown">本金 + 利息 + 政府补贴</div>
             </div>
             <div class="result-box">
-                <div class="result-title">退休后首月领取</div>
+                <div class="result-title">📈 退休后首月领取</div>
                 <div class="result-val" id="resFirstMonth">¥0</div>
                 <div class="breakdown">含基础及个人部分</div>
             </div>
@@ -550,8 +134,8 @@
                     <tr>
                         <th>年龄段</th>
                         <th>月领取总额</th>
-                        <th>基础养老金<span class="sub-text">(含长缴/高龄)</span></th>
-                        <th>个人账户<span class="sub-text" style="color:green">(余额/139)</span></th>
+                        <th>基础养老金<span class="sub-text">含长缴/高龄补贴</span></th>
+                        <th>个人账户<span class="sub-text" style="color:var(--primary)">余额÷139</span></th>
                     </tr>
                 </thead>
                 <tbody id="resultTableBody"></tbody>
@@ -569,390 +153,7 @@
     </div>
 </div>
 
-<script>
-    // 配置常量
-    const LEVELS = [350, 500, 800, 1000, 3000, 5000, 8000];
-    let currentMode = 'simple';
-    
-    // 图表实例存储
-    let charts = { pie: null, line: null };
-
-    // 初始化
-    window.onload = function() {
-        const now = new Date();
-        document.getElementById('currentYear').value = now.getFullYear();
-        
-        initSelectOptions('simplePersonal', LEVELS, 5000);
-        initSelectOptions('simpleChild', LEVELS, 0, true);
-
-        renderYearlyInputs();
-    };
-
-    // 辅助：生成下拉选项
-    function initSelectOptions(elementId, values, defaultValue, allowZero = false) {
-        const select = document.getElementById(elementId);
-        select.innerHTML = '';
-        
-        const allVals = allowZero ? [0, ...values] : values;
-        const uniqueVals = [...new Set(allVals)];
-
-        uniqueVals.forEach(val => {
-            const opt = document.createElement('option');
-            const valNum = parseInt(val);
-            opt.value = valNum;
-            opt.text = valNum === 0 ? '无 (¥0)' : `¥${valNum}`;
-            if (valNum === defaultValue) opt.selected = true;
-            select.appendChild(opt);
-        });
-    }
-
-    // 辅助：生成HTML字符串给动态列表
-    function getSelectHTML(className, defaultValue) {
-        let html = `<select class="${className}">`;
-        html += `<option value="0">¥0</option>`;
-        LEVELS.forEach(v => {
-            const selected = v === defaultValue ? 'selected' : '';
-            html += `<option value="${v}" ${selected}>¥${v}</option>`;
-        });
-        html += `</select>`;
-        return html;
-    }
-
-    // 切换模式
-    function toggleMode(mode) {
-        currentMode = mode;
-        if (mode === 'simple') {
-            document.getElementById('modeSimple').classList.add('active');
-            document.getElementById('modeDetailed').classList.remove('active');
-            document.getElementById('simpleModePanel').style.display = 'block';
-            document.getElementById('detailedModePanel').style.display = 'none';
-        } else {
-            document.getElementById('modeSimple').classList.remove('active');
-            document.getElementById('modeDetailed').classList.add('active');
-            document.getElementById('simpleModePanel').style.display = 'none';
-            document.getElementById('detailedModePanel').style.display = 'block';
-            renderYearlyInputs();
-        }
-    }
-
-    // 渲染每年的输入框
-    function renderYearlyInputs() {
-        const currentYear = parseInt(document.getElementById('currentYear').value);
-        const birthYear = parseInt(document.getElementById('birthYear').value);
-        const retireYear = birthYear + 60;
-        const yearsRemaining = retireYear - currentYear;
-
-        const infoDiv = document.getElementById('remainingInfo');
-        const container = document.getElementById('dynamicYearsContainer');
-        container.innerHTML = '';
-
-        if (yearsRemaining < 0) {
-            infoDiv.innerText = `提示：根据出生年份，已超过退休年龄 (${retireYear}年)。无法进行未来缴费规划。`;
-            return;
-        }
-
-        infoDiv.innerHTML = `预计 <span>${retireYear}</span> 年退休，包含退休当年在内，最多还可缴纳 <span>${yearsRemaining + 1}</span> 次`;
-
-        for (let i = 0; i <= yearsRemaining; i++) {
-            const year = currentYear + i;
-            const isLastYear = (year === retireYear);
-            const row = document.createElement('div');
-            row.className = 'year-row';
-            
-            const labelClass = isLastYear ? 'year-label last-year' : 'year-label';
-            const labelText = isLastYear ? `${year}年 (退休)` : `${year}年`;
-
-            row.innerHTML = `
-                <div class="${labelClass}">${labelText}</div>
-                <div class="input-wrapper">
-                    <span class="input-label">个人缴纳</span>
-                    ${getSelectHTML('input-personal', 5000)}
-                </div>
-                <div class="input-wrapper">
-                    <span class="input-label">子女资助</span>
-                    ${getSelectHTML('input-child', 0)}
-                </div>
-            `;
-            container.appendChild(row);
-        }
-    }
-
-    function formatMoney(num) {
-        return "¥" + num.toFixed(2);
-    }
-
-    function getSubsidy(amount) {
-        if (amount >= 800) return 80;
-        if (amount >= 500) return 50;
-        if (amount >= 350) return 30;
-        return 0;
-    }
-
-    // 主计算逻辑
-    function calculate() {
-        const currentYear = parseInt(document.getElementById('currentYear').value);
-        const birthYear = parseInt(document.getElementById('birthYear').value);
-        let pastYears = parseInt(document.getElementById('pastYears').value);
-        let balance = parseFloat(document.getElementById('currentBalance').value);
-        
-        const basePension = parseFloat(document.getElementById('basePension').value);
-        const bonusRate = parseFloat(document.getElementById('bonusRate').value);
-        const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
-
-        const retireYear = birthYear + 60;
-        const yearsDifference = retireYear - currentYear;
-
-        if (yearsDifference < 0) {
-            alert("已超过退休年龄，无法计算未来缴费。");
-            return;
-        }
-
-        let yearlyInputs = [];
-
-        if (currentMode === 'simple') {
-            const p = parseFloat(document.getElementById('simplePersonal').value);
-            const c = parseFloat(document.getElementById('simpleChild').value);
-            for(let i=0; i <= yearsDifference; i++) {
-                yearlyInputs.push(p + c);
-            }
-        } else {
-            const container = document.getElementById('dynamicYearsContainer');
-            const rows = container.getElementsByClassName('year-row');
-            for (let row of rows) {
-                const p = parseFloat(row.querySelector('.input-personal').value);
-                const c = parseFloat(row.querySelector('.input-child').value);
-                yearlyInputs.push(p + c);
-            }
-        }
-
-        for (let amount of yearlyInputs) {
-            balance = balance * (1 + interestRate);
-            
-            if (amount > 0) {
-                let subsidy = getSubsidy(amount); 
-                balance = balance + amount + subsidy;
-            }
-        }
-
-        const futurePayYears = yearlyInputs.filter(v => v > 0).length;
-        const totalYears = pastYears + futurePayYears;
-
-        const personalMonthly = balance / 139;
-
-        let longTermBonus = 0;
-        if (totalYears > 15) {
-            longTermBonus = (totalYears - 15) * bonusRate;
-        }
-        const baseTotal = basePension + longTermBonus;
-
-        const data60 = { base: baseTotal, personal: personalMonthly };
-        const data65 = { base: baseTotal + 5, personal: personalMonthly }; 
-        const data75 = { base: baseTotal + 10, personal: personalMonthly };
-
-        document.getElementById('resultCard').style.display = 'block';
-        document.getElementById('resRetireYear').innerText = retireYear + "年";
-        document.getElementById('resTotalYears').innerText = totalYears + "年";
-        document.getElementById('resTotalBalance').innerText = formatMoney(balance);
-        document.getElementById('resFirstMonth').innerText = formatMoney(data60.base + data60.personal);
-
-        const tbody = document.getElementById('resultTableBody');
-        tbody.innerHTML = `
-            <tr>
-                <td><strong>60-64岁</strong></td>
-                <td style="color:var(--primary); font-weight:bold;">${formatMoney(data60.base + data60.personal)}</td>
-                <td>${formatMoney(data60.base)}<span class="sub-text">(含长缴¥${Math.round(longTermBonus)})</span></td>
-                <td>${formatMoney(data60.personal)}</td>
-            </tr>
-            <tr>
-                <td><strong>65-74岁</strong></td>
-                <td style="color:var(--primary); font-weight:bold;">${formatMoney(data65.base + data65.personal)}</td>
-                <td>${formatMoney(data65.base)}<span class="sub-text" style="color:green">(+5高龄)</span></td>
-                <td>${formatMoney(data65.personal)}</td>
-            </tr>
-            <tr>
-                <td><strong>75岁及以上</strong></td>
-                <td style="color:var(--primary); font-weight:bold;">${formatMoney(data75.base + data75.personal)}</td>
-                <td>${formatMoney(data75.base)}<span class="sub-text" style="color:green">(+10高龄)</span></td>
-                <td>${formatMoney(data75.personal)}</td>
-            </tr>
-        `;
-
-        drawCharts(data60, balance);
-
-        setTimeout(() => {
-            document.getElementById('resultCard').scrollIntoView({behavior: "smooth", block: "start"});
-        }, 100);
-    }
-
-    function drawCharts(data60, totalAccountBalance) {
-        if (charts.pie) charts.pie.destroy();
-        if (charts.line) charts.line.destroy();
-
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        const total60 = data60.base + data60.personal;
-        
-        const pieLabelsPlugin = {
-            id: 'pieLabels',
-            afterDatasetsDraw(chart) {
-                const { ctx, data } = chart;
-                const meta = chart.getDatasetMeta(0);
-                
-                ctx.save();
-                ctx.font = 'bold 11px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#ffffff';
-
-                meta.data.forEach((element, index) => {
-                    const value = data.datasets[0].data[index];
-                    const percent = ((value / total60) * 100).toFixed(1) + '%';
-                    const position = element.tooltipPosition();
-                    
-                    ctx.fillText(`¥${value.toFixed(0)}`, position.x, position.y - 7);
-                    ctx.fillText(percent, position.x, position.y + 7);
-                });
-                ctx.restore();
-            }
-        };
-
-        charts.pie = new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: ['基础养老金', '个人账户养老金'],
-                datasets: [{
-                    data: [data60.base, data60.personal],
-                    backgroundColor: ['#34d399', '#059669']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: '60岁养老金构成 (月领)', font: {size: 14} },
-                    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: (ctx) => `${ctx.label}: ¥${ctx.raw.toFixed(2)}`
-                        }
-                    }
-                }
-            },
-            plugins: [pieLabelsPlugin]
-        });
-
-        const lineCtx = document.getElementById('lineChart').getContext('2d');
-        const labels = [];
-        const dataPoints = [];
-        let cumulative = 0;
-        let breakEvenIndex = -1;
-        let breakEvenValue = 0;
-
-        for(let age = 60; age <= 90; age++) {
-            labels.push(age + '岁');
-            
-            let monthly = data60.personal;
-            let base = data60.base;
-            if (age >= 65 && age < 75) base += 5;
-            else if (age >= 75) base += 10;
-            
-            let yearlyTotal = (monthly + base) * 12;
-            cumulative += yearlyTotal;
-            dataPoints.push(cumulative);
-
-            if (breakEvenIndex === -1 && cumulative >= totalAccountBalance) {
-                breakEvenIndex = age - 60;
-                breakEvenValue = cumulative;
-            }
-        }
-
-        const verticalLinePlugin = {
-            id: 'verticalLine',
-            afterDatasetsDraw(chart) {
-                if (breakEvenIndex === -1) return;
-                
-                const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
-                const xPos = x.getPixelForValue(breakEvenIndex);
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#ef4444';
-                ctx.setLineDash([5, 5]);
-                ctx.moveTo(xPos, top);
-                ctx.lineTo(xPos, bottom);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#ef4444';
-                ctx.textAlign = 'left';
-                ctx.font = 'bold 11px sans-serif';
-                ctx.fillText(` 回本 (${breakEvenIndex + 60}岁)`, xPos + 4, top + 16);
-                ctx.fillText(` ¥${Math.round(breakEvenValue)}`, xPos + 4, top + 30);
-                ctx.restore();
-            }
-        };
-
-        charts.line = new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '累计领取金额',
-                    data: dataPoints,
-                    borderColor: '#059669',
-                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: '累计领取金额走势', font: {size: 14} },
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => `累计: ${formatMoney(ctx.raw)}`,
-                            footer: (tooltipItems) => {
-                                if(tooltipItems[0].dataIndex === breakEvenIndex) return "★ 此时已回本";
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45,
-                            font: { size: 10 },
-                            callback: function(value, index) {
-                                // 移动端每隔5年显示一次标签
-                                if (window.innerWidth < 768) {
-                                    return index % 5 === 0 ? this.getLabelForValue(value) : '';
-                                }
-                                return index % 2 === 0 ? this.getLabelForValue(value) : '';
-                            }
-                        }
-                    },
-                    y: { 
-                        beginAtZero: true,
-                        ticks: {
-                            font: { size: 10 },
-                            callback: function(value) {
-                                if (value >= 10000) {
-                                    return (value / 10000).toFixed(0) + '万';
-                                }
-                                return value;
-                            }
-                        }
-                    }
-                }
-            },
-            plugins: [verticalLinePlugin]
-        });
-    }
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
